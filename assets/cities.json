@@ -1,4 +1,5 @@
-[
+{
+  "cities": [
   {
     "country": "AD",
     "country_name": "Andorra",
@@ -480104,3 +480105,4 @@
     "lng": "30.87674"
   }
 ]
+}

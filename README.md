@@ -1,108 +1,114 @@
-# 🌍 Frontend/Full Stack Intern Task
+# 🌍 City Distance App
 
-Hey there! 👋
+A web app that displays the distance from the user's location (or a selected city) to 25 randomly selected cities across the globe. Built with [Vue.js](https://vuejs.org/) and powered by location data, temperature filtering, and interactive maps.
 
-Thanks for applying to our internship program! This is a small technical task that will be part of the **technical interview** process.
+## ✨ Features
 
-You’ll build a mini app, submit it via a **GitHub pull request**, and we’ll review it together during a **collaborative code review session** — just like we do on the team. We're not expecting a perfect solution — we're more interested in how you **think**, **learn**, and **communicate your decisions**.
+- ✅ **Loads Cities from Local Server**
+- ✅ **Gets User's Current Location**
+- ✅ **Calculates Distance Using Custom & AI-Generated Haversine Formula**
+- ✅ **Displays a Fully Responsive, Scrollable Table**
+- ✅ **Click a Row to Set That City as the New Origin**
+- ✅ **Displays Real-Time Temperature per City (via Open-Meteo API)**
+- ✅ **Temperature Slider to Filter Cities by Min Temp**
+- ✅ **Interactive Map with All 25 Cities Marked**
+- ✅ **Click Marker ➝ Set Location and Recalculate Table**
 
-If something isn’t finished or you’ve made trade-offs, that’s totally fine — just explain what you would do next or how you approached the problem.
+## 🖼 Preview
 
----
+![City Distance App Preview](./screenshots/app-preview.png)
 
-## 🧠 Task Overview
+## 📦 Project Structure
 
-Build a small web app that loads a list of cities from a local server, calculates the distance from the user, and displays everything in a responsive table.
-When the user clicks on a city (a row), the app should recalculate distances from that city to the others.
+```bash
+.
+├── app_next         # Next.js version of the app (port 3000)
+├── app_vue          # Vue.js version of the app (port 3001)
+├── local-server     # JSON server config (port 3002)
+├── screenshots      # app preview for README.md
+└── assets/
+    └── cities.json  # List of all cities with metadata
+```
 
----
+## 🛠 Setup
 
-## ✅ Requirements
+```bash
+# Start local JSON server
+cd local-server
+npm install
+npm start
 
-### 1. Load City List
-- Your app should **fetch a list of city names** from a locally spawned server that serves the list of cities [`assets/cities.json`](assets/cities.json).
-  Use a public available *json server* of your choice. You can also use a service that hosts the file. 
-- From the response, randomly select **25 countries**, and then randomly select **1 city per country**.
-- Use these 25 cities as the source list for the rest of the task.
+# Start Vue app
+cd app_vue
+npm install
+npm run dev
 
-### 2. Get Current Location
-- Use the **browser’s Geolocation API** to get the user's current location.
+# Start Next app
+cd app_next
+npm install
+npm run dev
+```
 
-### 3. Calculate Distance
-- Add **two distance columns** to your table:
-  - `Distance (Your Formula)`: Calculate the distance from the user to each city using **any formula you like** (e.g., Haversine). Be sure to provide your own implementation.
-    - 📌 Be sure to **briefly explain your formula** in the code or README.
-  - `Distance (AI-Generated)`: Recreate the same logic using an **AI-generated implementation** (e.g., using ChatGPT, GitHub Copilot, etc.).
-    - Note **how you used AI** (e.g., did it generate the code? help troubleshoot? suggest structure?).
+* Vue app runs on `http://localhost:3001`
+* JSON server runs on `http://localhost:3002`
 
-> 💡 We encourage and value the smart use of AI tools in our workflow — show us how you applied them.
+## 📐 Distance Calculation
 
----
+Two columns in table show distances calculated using:
+* **My Custom Formula** – [an original Haversine implementation](https://www.movable-type.co.uk/scripts/latlong.html)
+* **AI-Generated Formula** – written using ChatGPT guidance
 
-### 4. Display in a Responsive Table
-- Present all results in a styled, scrollable table.
-- The table should include the following columns:
-  - City Name
-  - Country Name
-  - Country Code
-  - Coordinates
-  - Distance (Your Formula)
-  - Distance (AI-Generated)
-- Make the table **responsive**:
-  - On very small screens (**< 200px**), show **only**:
-    - City Name
-    - Distance (Your Formula)
+Here's my integration with added explanation:
 
-### 5. UI Interaction
-- When the user clicks on a city name, recalculate distances from the selected city to all the others (instead of the current location).
+```ts
+/**
+ * Calculates the great-circle distance between two points on Earth using the Haversine formula.
+ * 
+ * The Haversine formula determines the shortest distance between two points on a sphere
+ * using their latitudes and longitudes measured along the surface.
+ * 
+ * @param lat1 - Latitude of the first point in decimal degrees
+ * @param lat2 - Latitude of the second point in decimal degrees
+ * @param lng1 - Longitude of the first point in decimal degrees
+ * @param lng2 - Longitude of the second point in decimal degrees
+ * @returns The distance between the two points in kilometers, rounded to 2 decimal places
+ */
+const myHaversineDistance = (lat1: number, lat2: number, lng1: number, lng2: number): number => {
+    // Earth's radius in kilometers
+    const earthRadius: number = 6371;
 
----
+    // Convert latitude values from degrees to radians
+    const alpha1: number = (lat1 * Math.PI) / 180;
+    const alpha2: number = (lat2 * Math.PI) / 180;
 
-## 🎯 Optional Fun Challenge
+    // Calculate differences in coordinates and convert to radians
+    const beta: number = ((lat2 - lat1) * Math.PI) / 180;   // Difference in latitude
+    const gamma: number = ((lng2 - lng1) * Math.PI) / 180;  // Difference in longitude
 
-If you're up for a bit of fun, try adding one of the following features:
+    // Calculate the square of half the chord length between the points
+    const a: number =
+        Math.sin(beta / 2) * Math.sin(beta / 2) +
+        Math.cos(alpha1) * Math.cos(alpha2) * Math.sin(gamma / 2) * Math.sin(gamma / 2);
 
-- **Custom Data Column** 📊: Add a column of your choice to enhance the city data — examples include:
-  - Current weather
-  - Temperature
-  - Wind speed
-  - Population
-  - Local time
-  - Map
-  - Anything else fun or informative
+    // Calculate the angular distance in radians
+    const c: number = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  Then, provide a **UI toggle** (e.g., switch or dropdown) that lets users filter the table to only show entries that match criteria based on this custom column.
-  - For example: cities with temperature above 20°C, population below 1 million, or particularly windy places.
+    // Calculate the distance in kilometers and round to 2 decimal places
+    const distance: number = parseFloat((earthRadius * c).toFixed(2));
 
-This is totally optional — just a chance to show off your creativity and have fun with the task!
+    return distance;
+};
+```
 
----
+## 🤖 Use of AI
 
-## 🛠️ Tech Stack
+AI ([ChatGPT](https://chatgpt.com/)/[Claude](https://claude.ai/)/[Gemini](https://gemini.google.com/app)) was used to:
+* Refactor and validate the Haversine formula implementation
+* Help migrate from [Next.js](https://nextjs.org/) to [Vue.js](https://vuejs.org/)
+* Guide integration of external API ([Open-Meteo](https://open-meteo.com/))
+* Assist in [Leaflet](https://leafletjs.com/) map implementation and interactive features
+* Assist in writing clean, modular code
+* Create this README.md file
 
-You can use **any tech stack** you're comfortable with, and a **UI framework of your choice**.
-
-> 💡 **Bonus Points**  
-> We use **Vue 3 (Composition API)** with **Pinia** for state management and **TypeScript**.  
-> Using this stack will earn you extra credit during the review.
-
----
-
-## 🚀 How to Submit
-
-- Fork this repository to your own Github before you start your task.
-- When you're happy with the result submit a **pull request** and send us the link or add `markopangerceltra` as collaborator if it's a private repository.
-- In your README or comments, please include:
-  - Instructions for running the app (especially if backend or PHP is involved)
-  - A short explanation of your distance formula
-  - How you used AI tools (if applicable)
-  - Any assumptions or trade-offs you made
-
----
-
-## 💬 Questions?
-
-If anything is unclear, feel free to reach out to `markopangerceltra` — we're happy to help.
-
-We’re looking forward to seeing your work — good luck and have fun!
+The AI-generated distance formula is based on the same Haversine logic but reworded via AI suggestions.
 
